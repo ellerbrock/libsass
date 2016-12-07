@@ -24,6 +24,7 @@
 #include "parser.hpp"
 #include "expand.hpp"
 #include "color_maps.hpp"
+#include "sass_functions.hpp"
 
 namespace Sass {
 
@@ -330,6 +331,16 @@ namespace Sass {
     // try to use generic function
     if (env->has("@warn[f]")) {
 
+      // add call stack entry
+      ctx.callee_stack.push_back({
+        "@warn",
+        w->pstate().path,
+        w->pstate().line + 1,
+        w->pstate().column + 1,
+        SASS_CALLEE_FUNCTION,
+        { env }
+      });
+
       Definition* def = static_cast<Definition*>((*env)["@warn[f]"]);
       // Block*          body   = def->block();
       // Native_Function func   = def->native_function();
@@ -341,6 +352,7 @@ namespace Sass {
       sass_list_set_value(c_args, 0, message->perform(&to_c));
       union Sass_Value* c_val = c_func(c_args, c_function, ctx.c_compiler);
       ctx.c_options.output_style = outstyle;
+      ctx.callee_stack.pop_back();
       sass_delete_value(c_args);
       sass_delete_value(c_val);
       return 0;
@@ -366,6 +378,16 @@ namespace Sass {
     // try to use generic function
     if (env->has("@error[f]")) {
 
+      // add call stack entry
+      ctx.callee_stack.push_back({
+        "@error",
+        e->pstate().path,
+        e->pstate().line + 1,
+        e->pstate().column + 1,
+        SASS_CALLEE_FUNCTION,
+        { env }
+      });
+
       Definition* def = static_cast<Definition*>((*env)["@error[f]"]);
       // Block*          body   = def->block();
       // Native_Function func   = def->native_function();
@@ -377,6 +399,7 @@ namespace Sass {
       sass_list_set_value(c_args, 0, message->perform(&to_c));
       union Sass_Value* c_val = c_func(c_args, c_function, ctx.c_compiler);
       ctx.c_options.output_style = outstyle;
+      ctx.callee_stack.pop_back();
       sass_delete_value(c_args);
       sass_delete_value(c_val);
       return 0;
@@ -399,6 +422,16 @@ namespace Sass {
     // try to use generic function
     if (env->has("@debug[f]")) {
 
+      // add call stack entry
+      ctx.callee_stack.push_back({
+        "@debug",
+        d->pstate().path,
+        d->pstate().line + 1,
+        d->pstate().column + 1,
+        SASS_CALLEE_FUNCTION,
+        { env }
+      });
+
       Definition* def = static_cast<Definition*>((*env)["@debug[f]"]);
       // Block*          body   = def->block();
       // Native_Function func   = def->native_function();
@@ -410,6 +443,7 @@ namespace Sass {
       sass_list_set_value(c_args, 0, message->perform(&to_c));
       union Sass_Value* c_val = c_func(c_args, c_function, ctx.c_compiler);
       ctx.c_options.output_style = outstyle;
+      ctx.callee_stack.pop_back();
       sass_delete_value(c_args);
       sass_delete_value(c_val);
       return 0;
@@ -864,6 +898,14 @@ namespace Sass {
       bind(std::string("Function"), c->name(), params, args, &ctx, &fn_env, this);
       Backtrace here(backtrace(), c->pstate(), ", in function `" + c->name() + "`");
       exp.backtrace_stack.push_back(&here);
+      ctx.callee_stack.push_back({
+        c->name().c_str(),
+        c->pstate().path,
+        c->pstate().line + 1,
+        c->pstate().column + 1,
+        SASS_CALLEE_FUNCTION
+      });
+
       // eval the body if user-defined or special, invoke underlying CPP function if native
       if (body /* && !Prelexer::re_special_fun(name.c_str()) */) {
         result = body->perform(this);
@@ -875,6 +917,7 @@ namespace Sass {
         error(std::string("Function ") + c->name() + " did not return a value", c->pstate());
       }
       exp.backtrace_stack.pop_back();
+      ctx.callee_stack.pop_back();
     }
 
     // else if it's a user-defined c function
@@ -895,6 +938,13 @@ namespace Sass {
 
       Backtrace here(backtrace(), c->pstate(), ", in function `" + c->name() + "`");
       exp.backtrace_stack.push_back(&here);
+      ctx.callee_stack.push_back({
+        c->name().c_str(),
+        c->pstate().path,
+        c->pstate().line + 1,
+        c->pstate().column + 1,
+        SASS_CALLEE_C_FUNCTION
+      });
 
       To_C to_c;
       union Sass_Value* c_args = sass_make_list(params[0].length(), SASS_COMMA);
@@ -913,6 +963,7 @@ namespace Sass {
       result = cval_to_astnode(ctx.mem, c_val, backtrace(), c->pstate());
 
       exp.backtrace_stack.pop_back();
+      ctx.callee_stack.pop_back();
       sass_delete_value(c_args);
       if (c_val != c_args)
         sass_delete_value(c_val);
