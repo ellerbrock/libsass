@@ -599,9 +599,9 @@ namespace Sass {
 
     if ((s1 && s1->has_interpolants()) || (s2 && s2->has_interpolants()) || force_delay)
     {
-      // If possible upgrade LHS to a number
       if (op_type == Sass_OP::DIV || op_type == Sass_OP::MUL || op_type == Sass_OP::MOD || op_type == Sass_OP::ADD || op_type == Sass_OP::SUB ||
           op_type == Sass_OP::EQ) {
+        // If possible upgrade LHS to a number (for number to string compare)
         if (String_Constant* str = dynamic_cast<String_Constant*>(lhs)) {
           std::string value(str->value());
           const char* start = value.c_str();
@@ -610,10 +610,11 @@ namespace Sass {
             lhs = lhs->perform(this);
           }
         }
+        // If possible upgrade RHS to a number (for string to number compare)
         if (String_Constant* str = dynamic_cast<String_Constant*>(rhs)) {
           std::string value(str->value());
           const char* start = value.c_str();
-          if (Prelexer::sequence < Prelexer::number >(start) != 0) {
+          if (Prelexer::sequence < Prelexer::dimension, Prelexer::number >(start) != 0) {
             rhs = SASS_MEMORY_NEW(ctx.mem, Textual, b->pstate(), Textual::DIMENSION, str->value());
             rhs = rhs->perform(this);
           }
