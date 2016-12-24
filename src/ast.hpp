@@ -2452,7 +2452,7 @@ namespace Sass {
     Sequence_Selector* innermost() { return last(); };
 
     size_t length() const;
-    CommaSequence_Selector* resolve_parent_refs(Context& ctx, CommaSequence_Selector* parents, bool implicit_parent = true);
+    CommaSequence_Selector* resolve_parent_refs(Context& ctx, std::vector<CommaSequence_Selector*> pstack, bool implicit_parent = true);
     virtual bool is_superselector_of(SimpleSequence_Selector* sub, std::string wrapping = "");
     virtual bool is_superselector_of(Sequence_Selector* sub, std::string wrapping = "");
     virtual bool is_superselector_of(CommaSequence_Selector* sub, std::string wrapping = "");
@@ -2571,7 +2571,7 @@ namespace Sass {
     virtual bool has_real_parent_ref();
     void remove_parent_selectors();
     // virtual Placeholder_Selector* find_placeholder();
-    CommaSequence_Selector* resolve_parent_refs(Context& ctx, CommaSequence_Selector* parents, bool implicit_parent = true);
+    CommaSequence_Selector* resolve_parent_refs(Context& ctx, std::vector<CommaSequence_Selector*> pstack, bool implicit_parent = true);
     virtual bool is_superselector_of(SimpleSequence_Selector* sub, std::string wrapping = "");
     virtual bool is_superselector_of(Sequence_Selector* sub, std::string wrapping = "");
     virtual bool is_superselector_of(CommaSequence_Selector* sub, std::string wrapping = "");

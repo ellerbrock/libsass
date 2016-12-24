@@ -1793,7 +1793,9 @@ namespace Sass {
       for(;itr != parsedSelectors.end(); ++itr) {
         CommaSequence_Selector* child = *itr;
         std::vector<Sequence_Selector*> exploded;
-        CommaSequence_Selector* rv = child->resolve_parent_refs(ctx, result);
+        selector_stack.push_back(result);
+        CommaSequence_Selector* rv = child->resolve_parent_refs(ctx, selector_stack);
+        selector_stack.pop_back();
         for (size_t m = 0, mLen = rv->length(); m < mLen; ++m) {
           exploded.push_back((*rv)[m]);
         }

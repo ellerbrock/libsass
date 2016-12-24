@@ -135,7 +135,7 @@ namespace Sass {
         CommaSequence_Selector* ll = selector_stack.at(i);
         has_parent_selector = ll != 0 && ll->length() > 0;
       }
-      if (!has_parent_selector) {
+      if (sel->has_real_parent_ref() && !has_parent_selector) {
         error("Base-level rules cannot contain the parent-selector-referencing character '&'.", sel->pstate(), backtrace());
       }
     }

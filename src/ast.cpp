@@ -1118,24 +1118,26 @@ namespace Sass {
 
   }
 
-  CommaSequence_Selector* CommaSequence_Selector::resolve_parent_refs(Context& ctx, CommaSequence_Selector* ps, bool implicit_parent)
+  CommaSequence_Selector* CommaSequence_Selector::resolve_parent_refs(Context& ctx, std::vector<CommaSequence_Selector*> pstack, bool implicit_parent)
   {
-    if (!this->has_parent_ref()/* && !implicit_parent*/) return this;
+    if (!this->has_parent_ref()) return this;
     CommaSequence_Selector* ss = SASS_MEMORY_NEW(ctx.mem, CommaSequence_Selector, pstate());
+    CommaSequence_Selector* ps = pstack.back();
     for (size_t pi = 0, pL = ps->length(); pi < pL; ++pi) {
       CommaSequence_Selector* list = SASS_MEMORY_NEW(ctx.mem, CommaSequence_Selector, pstate());
       *list << (*ps)[pi];
       for (size_t si = 0, sL = this->length(); si < sL; ++si) {
-        *ss += (*this)[si]->resolve_parent_refs(ctx, list, implicit_parent);
+        *ss += (*this)[si]->resolve_parent_refs(ctx, pstack, implicit_parent);
       }
     }
     return ss;
   }
 
-  CommaSequence_Selector* Sequence_Selector::resolve_parent_refs(Context& ctx, CommaSequence_Selector* parents, bool implicit_parent)
+  CommaSequence_Selector* Sequence_Selector::resolve_parent_refs(Context& ctx, std::vector<CommaSequence_Selector*> pstack, bool implicit_parent)
   {
     Sequence_Selector* tail = this->tail();
     SimpleSequence_Selector* head = this->head();
+    CommaSequence_Selector* parents = pstack.back();
 
     if (!this->has_real_parent_ref() && !implicit_parent) {
       CommaSequence_Selector* retval = SASS_MEMORY_NEW(ctx.mem, CommaSequence_Selector, pstate());
@@ -1144,7 +1146,7 @@ namespace Sass {
     }
 
     // first resolve_parent_refs the tail (which may return an expanded list)
-    CommaSequence_Selector* tails = tail ? tail->resolve_parent_refs(ctx, parents, implicit_parent) : 0;
+    CommaSequence_Selector* tails = tail ? tail->resolve_parent_refs(ctx, pstack, implicit_parent) : 0;
 
     if (head && head->length() > 0) {
 
@@ -1153,6 +1155,15 @@ namespace Sass {
       // mix parent complex selector into the compound list
       if (dynamic_cast<Parent_Selector*>((*head)[0])) {
         retval = SASS_MEMORY_NEW(ctx.mem, CommaSequence_Selector, pstate());
+        // it turns out that real parent references reach
+        // across @at-root rules, which comes unexpected
+        if (parents == NULL && head->has_real_parent_ref()) {
+          int i = pstack.size() - 1;
+          while (!parents && i > -1) {
+            parents = pstack.at(i--);
+          }
+        }
+
         if (parents && parents->length()) {
           if (tails && tails->length() > 0) {
             for (size_t n = 0, nL = tails->length(); n < nL; ++n) {
@@ -1247,7 +1258,7 @@ namespace Sass {
       for (Simple_Selector* ss : *head) {
         if (Wrapped_Selector* ws = dynamic_cast<Wrapped_Selector*>(ss)) {
           if (CommaSequence_Selector* sl = dynamic_cast<CommaSequence_Selector*>(ws->selector())) {
-            if (parents) ws->selector(sl->resolve_parent_refs(ctx, parents, implicit_parent));
+            if (parents) ws->selector(sl->resolve_parent_refs(ctx, pstack, implicit_parent));
           }
         }
       }
