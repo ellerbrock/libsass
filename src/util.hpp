@@ -43,9 +43,6 @@ namespace Sass {
 
     std::string normalize_underscores(const std::string& str);
     std::string normalize_decimals(const std::string& str);
-    std::string normalize_sixtuplet(const std::string& col);
-
-    std::string vecJoin(const std::vector<std::string>& vec, const std::string& sep);
     bool containsAnyPrintableStatements(Block* b);
 
     bool isPrintable(Ruleset* r, Sass_Output_Style style = NESTED);

@@ -54,11 +54,6 @@ namespace Sass {
   { }
   Eval::~Eval() { }
 
-  Context& Eval::context()
-  {
-    return ctx;
-  }
-
   Env* Eval::environment()
   {
     return exp.environment();
@@ -915,7 +910,7 @@ namespace Sass {
       } else if (sass_value_get_tag(c_val) == SASS_WARNING) {
         error("warning in C function " + c->name() + ": " + sass_warning_get_message(c_val), c->pstate(), backtrace());
       }
-      result = cval_to_astnode(ctx.mem, c_val, ctx, backtrace(), c->pstate());
+      result = cval_to_astnode(ctx.mem, c_val, backtrace(), c->pstate());
 
       exp.backtrace_stack.pop_back();
       sass_delete_value(c_args);
@@ -1581,7 +1576,7 @@ namespace Sass {
     return SASS_MEMORY_NEW(mem, String_Constant, pstate ? *pstate : lhs.pstate(), lstr + sep + rstr);
   }
 
-  Expression* cval_to_astnode(Memory_Manager& mem, union Sass_Value* v, Context& ctx, Backtrace* backtrace, ParserState pstate)
+  Expression* cval_to_astnode(Memory_Manager& mem, union Sass_Value* v, Backtrace* backtrace, ParserState pstate)
   {
     using std::strlen;
     using std::strcpy;
@@ -1606,7 +1601,7 @@ namespace Sass {
       case SASS_LIST: {
         List* l = SASS_MEMORY_NEW(mem, List, pstate, sass_list_get_length(v), sass_list_get_separator(v));
         for (size_t i = 0, L = sass_list_get_length(v); i < L; ++i) {
-          *l << cval_to_astnode(mem, sass_list_get_value(v, i), ctx, backtrace, pstate);
+          *l << cval_to_astnode(mem, sass_list_get_value(v, i), backtrace, pstate);
         }
         e = l;
       } break;
@@ -1614,8 +1609,8 @@ namespace Sass {
         Map* m = SASS_MEMORY_NEW(mem, Map, pstate);
         for (size_t i = 0, L = sass_map_get_length(v); i < L; ++i) {
           *m << std::make_pair(
-            cval_to_astnode(mem, sass_map_get_key(v, i), ctx, backtrace, pstate),
-            cval_to_astnode(mem, sass_map_get_value(v, i), ctx, backtrace, pstate));
+            cval_to_astnode(mem, sass_map_get_key(v, i), backtrace, pstate),
+            cval_to_astnode(mem, sass_map_get_value(v, i), backtrace, pstate));
         }
         e = m;
       } break;

@@ -171,23 +171,6 @@ namespace Sass {
     }
 
     template <>
-    Sequence_Selector* get_arg_sel(const std::string& argname, Env& env, Signature sig, ParserState pstate, Backtrace* backtrace, Context& ctx) {
-      Expression* exp = ARG(argname, Expression);
-      if (exp->concrete_type() == Expression::NULL_VAL) {
-        std::stringstream msg;
-        msg << argname << ": null is not a valid selector: it must be a string,\n";
-        msg << "a list of strings, or a list of lists of strings for `" << function_name(sig) << "'";
-        error(msg.str(), pstate);
-      }
-      if (String_Constant* str =dynamic_cast<String_Constant*>(exp)) {
-        str->quote_mark(0);
-      }
-      std::string exp_src = exp->to_string(ctx.c_options) + "{";
-      CommaSequence_Selector* sel_list = Parser::parse_selector(exp_src.c_str(), ctx);
-      return (sel_list->length() > 0) ? sel_list->first() : 0;
-    }
-
-    template <>
     SimpleSequence_Selector* get_arg_sel(const std::string& argname, Env& env, Signature sig, ParserState pstate, Backtrace* backtrace, Context& ctx) {
       Expression* exp = ARG(argname, Expression);
       if (exp->concrete_type() == Expression::NULL_VAL) {

@@ -1003,16 +1003,6 @@ namespace Sass {
   {
     Expression* key = parse_list();
     List* map = SASS_MEMORY_NEW(ctx.mem, List, pstate, 0, SASS_HASH);
-    if (String_Quoted* str = dynamic_cast<String_Quoted*>(key)) {
-      if (!str->quote_mark() && !str->is_delayed()) {
-        if (const Color* col = name_to_color(str->value())) {
-          Color* c = SASS_MEMORY_NEW(ctx.mem, Color, *col);
-          c->pstate(str->pstate());
-          c->disp(str->value());
-          key = c;
-        }
-      }
-    }
 
     // it's not a map so return the lexed value as a list value
     if (!lex_css< exactly<':'> >())
@@ -1029,16 +1019,6 @@ namespace Sass {
       { break; }
 
       Expression* key = parse_space_list();
-      if (String_Quoted* str = dynamic_cast<String_Quoted*>(key)) {
-        if (!str->quote_mark() && !str->is_delayed()) {
-          if (const Color* col = name_to_color(str->value())) {
-            Color* c = SASS_MEMORY_NEW(ctx.mem, Color, *col);
-            c->pstate(str->pstate());
-            c->disp(str->value());
-            key = c;
-          }
-        }
-      }
 
       if (!(lex< exactly<':'> >()))
       { css_error("Invalid CSS", " after ", ": expected \":\", was "); }

@@ -27,9 +27,8 @@ namespace Sass {
     bool is_in_comment;
 
     Env* environment();
-    Context& context();
-    CommaSequence_Selector* selector();
     Backtrace* backtrace();
+    CommaSequence_Selector* selector();
 
     // for evaluating function bodies
     Expression* operator()(Block*);
@@ -103,7 +102,7 @@ namespace Sass {
 
   };
 
-  Expression* cval_to_astnode(Memory_Manager& mem, union Sass_Value* v, Context& ctx, Backtrace* backtrace, ParserState pstate = ParserState("[AST]"));
+  Expression* cval_to_astnode(Memory_Manager& mem, union Sass_Value* v, Backtrace* backtrace, ParserState pstate = ParserState("[AST]"));
 
 }
 
