@@ -1191,14 +1191,15 @@ namespace Sass {
   class Function_Call : public PreValue {
     ADD_HASHED(std::string, name)
     ADD_HASHED(Arguments*, arguments)
+    ADD_PROPERTY(bool, via_call)
     ADD_PROPERTY(void*, cookie)
     size_t hash_;
   public:
     Function_Call(ParserState pstate, std::string n, Arguments* args, void* cookie)
-    : PreValue(pstate), name_(n), arguments_(args), cookie_(cookie), hash_(0)
+    : PreValue(pstate), name_(n), arguments_(args), via_call_(false), cookie_(cookie), hash_(0)
     { concrete_type(STRING); }
     Function_Call(ParserState pstate, std::string n, Arguments* args)
-    : PreValue(pstate), name_(n), arguments_(args), cookie_(0), hash_(0)
+    : PreValue(pstate), name_(n), arguments_(args), via_call_(false), cookie_(0), hash_(0)
     { concrete_type(STRING); }
 
     virtual bool operator==(const Expression& rhs) const

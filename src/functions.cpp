@@ -1686,6 +1686,7 @@ namespace Sass {
       }
       Function_Call* func = SASS_MEMORY_NEW(ctx.mem, Function_Call, pstate, name, args);
       Expand expand(ctx, &d_env, backtrace, &selector_stack);
+      func->via_call(true); // calc invoke is allowed
       return func->perform(&expand.eval);
 
     }

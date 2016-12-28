@@ -803,7 +803,8 @@ namespace Sass {
     Arguments* args = SASS_MEMORY_NEW(ctx.mem, Arguments, *c->arguments());
 
     Env* env = environment();
-    if (!env->has(full_name)) {
+    if (!env->has(full_name) || (!c->via_call() && Prelexer::re_special_fun(name.c_str())))
+    {
       if (!env->has("*[f]")) {
         for (Argument* arg : args->elements()) {
           if (List* ls = dynamic_cast<List*>(arg->value())) {
@@ -869,9 +870,15 @@ namespace Sass {
       Backtrace here(backtrace(), c->pstate(), ", in function `" + c->name() + "`");
       exp.backtrace_stack.push_back(&here);
       // eval the body if user-defined or special, invoke underlying CPP function if native
-      if (body && !Prelexer::re_special_fun(name.c_str())) { result = body->perform(this); }
-      else if (func) { result = func(fn_env, *env, ctx, def->signature(), c->pstate(), backtrace(), exp.selector_stack); }
-      if (!result) error(std::string("Function ") + c->name() + " did not return a value", c->pstate());
+      if (body /* && !Prelexer::re_special_fun(name.c_str()) */) {
+        result = body->perform(this);
+      }
+      else if (func) {
+        result = func(fn_env, *env, ctx, def->signature(), c->pstate(), backtrace(), exp.selector_stack);
+      }
+      if (!result) {
+        error(std::string("Function ") + c->name() + " did not return a value", c->pstate());
+      }
       exp.backtrace_stack.pop_back();
     }
 
