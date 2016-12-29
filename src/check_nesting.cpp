@@ -84,7 +84,10 @@ namespace Sass {
   Statement* CheckNesting::operator()(Definition* n)
   {
     if (!this->should_visit(n)) return NULL;
-    if (!is_mixin(n)) return n;
+    if (!is_mixin(n)) {
+      visit_children(n);
+      return n;
+    }
 
     Definition* old_mixin_definition = this->current_mixin_definition;
     this->current_mixin_definition = n;
@@ -132,9 +135,8 @@ namespace Sass {
     if (dynamic_cast<Declaration*>(node))
     { this->invalid_prop_parent(this->parent); }
 
-    if (
-      dynamic_cast<Declaration*>(this->parent)
-    ) { this->invalid_prop_child(node); }
+    if (dynamic_cast<Declaration*>(this->parent))
+    { this->invalid_prop_child(node); }
 
     if (dynamic_cast<Return*>(node))
     { this->invalid_return_parent(this->parent); }
@@ -261,6 +263,8 @@ namespace Sass {
         dynamic_cast<Debug*>(child) ||
         dynamic_cast<Return*>(child) ||
         dynamic_cast<Variable*>(child) ||
+        // Ruby Sass doesn't distinguish variables and assignments
+        dynamic_cast<Assignment*>(child) ||
         dynamic_cast<Warning*>(child) ||
         dynamic_cast<Error*>(child)
     )) {
