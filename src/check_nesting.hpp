@@ -27,7 +27,11 @@ namespace Sass {
 
     template <typename U>
     Statement* fallback(U x) {
-        return fallback_impl(this->before(dynamic_cast<Statement*>(x)));
+      Statement* n = dynamic_cast<Statement*>(x);
+      if (this->should_visit(n)) {
+        return fallback_impl(n);
+      }
+      return NULL;
     }
 
   private:

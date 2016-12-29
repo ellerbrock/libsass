@@ -11,13 +11,8 @@ namespace Sass {
     current_mixin_definition(0)
   { }
 
-  Statement* CheckNesting::before(Statement* s) {
-      if (this->should_visit(s)) return s;
-      return 0;
-  }
-
-  Statement* CheckNesting::visit_children(Statement* parent) {
-
+  Statement* CheckNesting::visit_children(Statement* parent)
+  {
     Statement* old_parent = this->parent;
 
     if (dynamic_cast<At_Root_Block*>(parent)) {
@@ -88,6 +83,7 @@ namespace Sass {
 
   Statement* CheckNesting::operator()(Definition* n)
   {
+    if (!this->should_visit(n)) return NULL;
     if (!is_mixin(n)) return n;
 
     Definition* old_mixin_definition = this->current_mixin_definition;
