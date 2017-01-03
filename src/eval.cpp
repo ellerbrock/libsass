@@ -569,11 +569,11 @@ namespace Sass {
     switch (op_type) {
       case Sass_OP::AND: {
         return *lhs ? b->right()->perform(this) : lhs.detach();
-      } break;
+      }
 
       case Sass_OP::OR: {
         return *lhs ? lhs.detach() : b->right()->perform(this);
-      } break;
+      }
 
       default:
         break;
@@ -1463,8 +1463,6 @@ namespace Sass {
       v->value(ops[op](lv, r.value() * r.convert_factor(l)));
       // v->normalize();
       return v.detach();
-
-      v->value(ops[op](lv, tmp.value()));
     }
     v->normalize();
     return v.detach();
@@ -1482,7 +1480,7 @@ namespace Sass {
                                ops[op](lv, r.g()),
                                ops[op](lv, r.b()),
                                r.a());
-      } break;
+      }
       case Sass_OP::SUB:
       case Sass_OP::DIV: {
         std::string sep(op == Sass_OP::SUB ? "-" : "/");
@@ -1492,10 +1490,10 @@ namespace Sass {
                                l.to_string(opt)
                                + sep
                                + color);
-      } break;
+      }
       case Sass_OP::MOD: {
         throw Exception::UndefinedOperation(&l, &r, sass_op_to_name(op));
-      } break;
+      }
       default: break; // caller should ensure that we don't get here
     }
     // unreachable

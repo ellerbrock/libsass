@@ -1208,7 +1208,6 @@ namespace Sass {
       } else {
         throw Exception::InvalidArgumentType(pstate, "random", "$limit", "number");
       }
-      return 0;
     }
 
     /////////////////
