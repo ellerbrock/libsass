@@ -583,8 +583,8 @@ namespace Sass {
     AST_Node_Obj lu = lhs;
     AST_Node_Obj ru = rhs;
 
-    Expression::Concrete_Type l_type = lhs->concrete_type();
-    Expression::Concrete_Type r_type = rhs->concrete_type();
+    Expression::Concrete_Type l_type;
+    Expression::Concrete_Type r_type;
 
     // Is one of the operands an interpolant?
     String_Schema_Obj s1 = Cast<String_Schema>(b->left());
@@ -626,8 +626,6 @@ namespace Sass {
       To_Value to_value(ctx);
       Value_Obj v_l = Cast<Value>(lhs->perform(&to_value));
       Value_Obj v_r = Cast<Value>(rhs->perform(&to_value));
-      l_type = lhs->concrete_type();
-      r_type = rhs->concrete_type();
 
       if (s2 && s2->has_interpolants() && s2->length()) {
         Textual_Obj front = Cast<Textual>(s2->elements().front());
@@ -675,7 +673,7 @@ namespace Sass {
 
     // ToDo: throw error in op functions
     // ToDo: then catch and re-throw them
-    Expression_Obj rv = 0;
+    Expression_Obj rv;
     try {
       ParserState pstate(b->pstate());
       if (l_type == Expression::NUMBER && r_type == Expression::NUMBER) {
