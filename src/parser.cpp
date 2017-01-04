@@ -1647,7 +1647,9 @@ namespace Sass {
         ex->is_interpolant(true);
         (*schema) << ex;
         // ToDo: no error check here?
-        lex < exactly < rbrace > >();
+        if (!lex < exactly < rbrace > >()) {
+          css_error("Invalid CSS", " after ", ": expected \"}\", was ");
+        }
       }
       // lex some string constants or other valid token
       // Note: [-+] chars are left over from i.e. `#{3}+3`
