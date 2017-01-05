@@ -26,6 +26,10 @@ namespace Sass {
 
     Context&          ctx;
     Eval              eval;
+    size_t            recursions;
+    bool              in_keyframes;
+    bool              at_root_without_rule;
+    bool              old_at_root_without_rule;
 
     // it's easier to work with vectors
     std::vector<Env*>           env_stack;
@@ -35,9 +39,6 @@ namespace Sass {
     std::vector<CommaSequence_Selector*> selector_stack;
     std::vector<Media_Block*>   media_block_stack;
     std::vector<Backtrace*>     backtrace_stack;
-    bool                        in_keyframes;
-    bool                        at_root_without_rule;
-    bool                        old_at_root_without_rule;
 
     Statement* fallback_impl(AST_Node* n);
 
