@@ -12,7 +12,7 @@ namespace Sass {
 
     void Remove_Placeholders::operator()(Block_Ptr b) {
         for (size_t i = 0, L = b->length(); i < L; ++i) {
-            Statement_Ptr st = &b->at(i);
+            Statement_Ptr st = b->at(i);
             st->perform(this);
         }
     }
@@ -38,7 +38,7 @@ namespace Sass {
 
         if (sl) {
           // Set the new placeholder selector list
-          r->selector(remove_placeholders(&sl));
+          r->selector(remove_placeholders(sl));
           // Remove placeholders in wrapped selectors
           for (Complex_Selector_Obj cs : sl->elements()) {
             while (cs) {
@@ -72,10 +72,10 @@ namespace Sass {
     }
 
     void Remove_Placeholders::operator()(Media_Block_Ptr m) {
-        operator()(&m->block());
+        operator()(m->block());
     }
     void Remove_Placeholders::operator()(Supports_Block_Ptr m) {
-        operator()(&m->block());
+        operator()(m->block());
     }
 
     void Remove_Placeholders::operator()(Directive_Ptr a) {
