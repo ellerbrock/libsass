@@ -1463,9 +1463,7 @@ namespace Sass {
       Expression_Obj v = ARG("$key", Expression);
       try {
         Expression_Obj val = m->at(v);
-        if (!val) return SASS_MEMORY_NEW(Null, pstate);
-        val->set_delayed(false);
-        return val.detach();
+        return val ? val.detach() : SASS_MEMORY_NEW(Null, pstate);
       } catch (const std::out_of_range&) {
         return SASS_MEMORY_NEW(Null, pstate);
       }
@@ -1655,7 +1653,7 @@ namespace Sass {
 
       Arguments_Obj args = SASS_MEMORY_NEW(Arguments, pstate);
       // std::string full_name(name + "[f]");
-      // Definition_Ptr def = d_env.has(full_name) ? static_cast<Definition_Ptr>((d_env)[full_name]) : 0;
+      // Definition_Ptr def = d_env.has(full_name) ? Cast<Definition>((d_env)[full_name]) : 0;
       // Parameters_Ptr params = def ? def->parameters() : 0;
       // size_t param_size = params ? params->length() : 0;
       for (size_t i = 0, L = arglist->length(); i < L; ++i) {
