@@ -2279,7 +2279,7 @@ namespace Sass {
     return is_interpolant() || (right() && right()->is_right_interpolant());
   }
 
-  std::string AST_Node::to_string(Sass_Inspect_Options opt) const
+  const std::string AST_Node::to_string(Sass_Inspect_Options opt) const
   {
     Sass_Output_Options out(opt);
     Emitter emitter(out);
@@ -2290,7 +2290,7 @@ namespace Sass {
     return i.get_buffer();
   }
 
-  std::string AST_Node::to_string() const
+  const std::string AST_Node::to_string() const
   {
     return to_string({ NESTED, 5 });
   }
