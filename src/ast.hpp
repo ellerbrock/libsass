@@ -2097,7 +2097,7 @@ namespace Sass {
 
       if (s->statement_type() == Statement::DIRECTIVE)
       {
-        if (Directive_Obj dir = SASS_MEMORY_CAST(Directive, s))
+        if (Directive_Obj dir = Cast<Directive>(s))
         {
           std::string keyword(dir->keyword());
           if (keyword.length() > 0) keyword.erase(0, 1);
@@ -2116,7 +2116,7 @@ namespace Sass {
       {
         return expression()->exclude("supports");
       }
-      if (Directive_Obj dir = SASS_MEMORY_CAST(Directive, s))
+      if (Directive_Obj dir = Cast<Directive>(s))
       {
         if (dir->is_keyframes()) return expression()->exclude("keyframes");
       }
@@ -2758,7 +2758,7 @@ namespace Sass {
     Simple_Selector_Ptr_Const base() const {
       if (length() == 0) return 0;
       // ToDo: why is this needed?
-      if (SASS_MEMORY_CAST(Element_Selector, (*this)[0]))
+      if (Cast<Element_Selector>((*this)[0]))
         return (*this)[0];
       return 0;
     }
@@ -2793,7 +2793,7 @@ namespace Sass {
     bool is_empty_reference()
     {
       return length() == 1 &&
-             SASS_MEMORY_CAST(Parent_Selector, (*this)[0]);
+             Cast<Parent_Selector>((*this)[0]);
     }
     SubSetMapKeys to_str_vec(); // sometimes need to convert to a flat "by-value" data structure
 

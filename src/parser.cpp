@@ -449,7 +449,7 @@ namespace Sass {
       bool is_arglist = false;
       bool is_keyword = false;
       Expression_Obj val = parse_space_list();
-      List_Ptr l = SASS_MEMORY_CAST(List, val);
+      List_Ptr l = Cast<List>(val);
       if (lex_css< exactly< ellipsis > >()) {
         if (val->concrete_type() == Expression::MAP || (
            (l != NULL && l->separator() == SASS_HASH)
@@ -1002,7 +1002,7 @@ namespace Sass {
       }
       else {
         value = parse_list(DELAYED);
-        if (List_Ptr list = SASS_MEMORY_CAST(List, value)) {
+        if (List_Ptr list = Cast<List>(value)) {
           if (list->length() == 0 && !peek< exactly <'{'> >()) {
             css_error("Invalid CSS", " after ", ": expected expression (e.g. 1px, bold), was ");
           }
@@ -1070,52 +1070,6 @@ namespace Sass {
     return map.ptr();
   }
 
-<<<<<<< HEAD
-=======
-  Expression_Obj Parser::parse_bracket_list()
-  {
-    // check if we have an empty list
-    // return the empty list as such
-    if (peek_css< list_terminator >(position))
-    {
-      // return an empty list (nothing to delay)
-      return SASS_MEMORY_NEW(List, pstate, 0, SASS_SPACE, false, true);
-    }
-
-    bool has_paren = peek_css< exactly<'('> >() != NULL;
-
-    // now try to parse a space list
-    Expression_Obj list = parse_space_list();
-    // if it's a singleton, return it (don't wrap it)
-    if (!peek_css< exactly<','> >(position)) {
-      List_Obj l = SASS_MEMORY_CAST(List, list);
-      if (!l || l->is_bracketed() || has_paren) {
-        List_Obj bracketed_list = SASS_MEMORY_NEW(List, pstate, 1, SASS_SPACE, false, true);
-        bracketed_list->append(list);
-        return bracketed_list.ptr();
-      }
-      l->is_bracketed(true);
-      return l.ptr();
-    }
-
-    // if we got so far, we actually do have a comma list
-    List_Obj bracketed_list = SASS_MEMORY_NEW(List, pstate, 2, SASS_COMMA, false, true);
-    // wrap the first expression
-    bracketed_list->append(list);
-
-    while (lex_css< exactly<','> >())
-    {
-      // check for abort condition
-      if (peek_css< list_terminator >(position)
-      ) { break; }
-      // otherwise add another expression
-      bracketed_list->append(parse_space_list());
-    }
-    // return the list
-    return bracketed_list.ptr();
-  }
-
->>>>>>> 188effe6... Remove `operator&` from shared pointer interface
   // parse list returns either a space separated list,
   // a comma separated list or any bare expression found.
   // so to speak: we unwrap items from lists if possible here!
@@ -1412,16 +1366,6 @@ namespace Sass {
       // expression can be evaluated
       return value;
     }
-<<<<<<< HEAD
-=======
-    else if (lex_css< exactly<'['> >()) {
-      // explicit bracketed
-      Expression_Obj value = parse_bracket_list();
-      // lex the expected closing square bracket
-      if (!lex_css< exactly<']'> >()) error("unclosed squared bracket", pstate);
-      return value;
-    }
->>>>>>> 188effe6... Remove `operator&` from shared pointer interface
     // string may be interpolated
     // if (lex< quoted_string >()) {
     //   return &parse_string();
@@ -1440,7 +1384,7 @@ namespace Sass {
     }
     else if (lex< identifier_schema >()) {
       String_Obj string = parse_identifier_schema();
-      if (String_Schema_Ptr schema = SASS_MEMORY_CAST(String_Schema, string)) {
+      if (String_Schema_Ptr schema = Cast<String_Schema>(string)) {
         if (lex < exactly < '(' > >()) {
           schema->append(parse_list());
           lex < exactly < ')' > >();
@@ -2269,7 +2213,7 @@ namespace Sass {
     List_Obj value = SASS_MEMORY_NEW(List, feature->pstate(), 1);
 
     if (expression->concrete_type() == Expression::LIST) {
-        value = SASS_MEMORY_CAST(List, expression);
+        value = Cast<List>(expression);
     }
     else value->append(expression);
 
@@ -2719,7 +2663,7 @@ namespace Sass {
 
   Expression_Obj Parser::fold_operands(Expression_Obj base, std::vector<Expression_Obj>& operands, std::vector<Operand>& ops, size_t i)
   {
-    if (String_Schema_Ptr schema = SASS_MEMORY_CAST(String_Schema, base)) {
+    if (String_Schema_Ptr schema = Cast<String_Schema>(base)) {
       // return schema;
       if (schema->has_interpolants()) {
         if (i + 1 < operands.size() && (
@@ -2742,7 +2686,7 @@ namespace Sass {
     }
 
     for (size_t S = operands.size(); i < S; ++i) {
-      if (String_Schema_Ptr schema = SASS_MEMORY_CAST(String_Schema, operands[i])) {
+      if (String_Schema_Ptr schema = Cast<String_Schema>(operands[i])) {
         if (schema->has_interpolants()) {
           if (i + 1 < S) {
             Expression_Obj rhs = fold_operands(operands[i+1], operands, ops, i + 2);
@@ -2765,8 +2709,8 @@ namespace Sass {
     }
     // nested binary expression are never to be delayed
     if (Binary_Expression_Ptr b = dynamic_cast<Binary_Expression_Ptr>(base.ptr())) {
-      if (SASS_MEMORY_CAST(Binary_Expression, b->left())) base->set_delayed(false);
-      if (SASS_MEMORY_CAST(Binary_Expression, b->right())) base->set_delayed(false);
+      if (Cast<Binary_Expression>(b->left())) base->set_delayed(false);
+      if (Cast<Binary_Expression>(b->right())) base->set_delayed(false);
     }
     return base;
   }
