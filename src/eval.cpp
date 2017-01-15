@@ -252,8 +252,8 @@ namespace Sass {
           variable->append(value);
           env.set_local(variables[0], variable);
         } else {
-          env.set_local(variables[0], key.ptr());
-          env.set_local(variables[1], value.ptr());
+          env.set_local(variables[0], key);
+          env.set_local(variables[1], value);
         }
 
         val = body->perform(this);
@@ -580,8 +580,8 @@ namespace Sass {
     }
     // not a logical connective, so go ahead and eval the rhs
     rhs = rhs->perform(this);
-    AST_Node_Obj lu = lhs.ptr();
-    AST_Node_Obj ru = rhs.ptr();
+    AST_Node_Obj lu = lhs;
+    AST_Node_Obj ru = rhs;
 
     Expression::Concrete_Type l_type = lhs->concrete_type();
     Expression::Concrete_Type r_type = rhs->concrete_type();
@@ -893,7 +893,7 @@ namespace Sass {
       if (full_name == "*[f]") {
         String_Quoted_Obj str = SASS_MEMORY_NEW(String_Quoted, c->pstate(), c->name());
         Arguments_Obj new_args = SASS_MEMORY_NEW(Arguments, c->pstate());
-        new_args->append(SASS_MEMORY_NEW(Argument, c->pstate(), str.ptr()));
+        new_args->append(SASS_MEMORY_NEW(Argument, c->pstate(), str));
         new_args->concat(args);
         args = new_args;
       }
@@ -971,7 +971,7 @@ namespace Sass {
     if (force) value->is_expanded(false);
     value->set_delayed(false); // verified
     value = value->perform(this);
-    if(!force) (*env)[name] = value.ptr();
+    if(!force) (*env)[name] = value;
     return value.detach();
   }
 
@@ -1328,7 +1328,7 @@ namespace Sass {
                                         SASS_COMMA,
                                         true);
         wrapper->append(val);
-        val = wrapper.ptr();
+        val = wrapper;
       }
     }
     return SASS_MEMORY_NEW(Argument,
@@ -1375,7 +1375,7 @@ namespace Sass {
         arglist->append(splat);
       }
       if (arglist->length()) {
-        aa->append(SASS_MEMORY_NEW(Argument, splat->pstate(), arglist.ptr(), "", true));
+        aa->append(SASS_MEMORY_NEW(Argument, splat->pstate(), arglist, "", true));
       }
     }
 
