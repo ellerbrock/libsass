@@ -126,7 +126,6 @@ namespace Sass {
     virtual void cloneChildren() {};
   public:
     void update_pstate(const ParserState& pstate);
-    void set_pstate_offset(const Offset& offset);
   public:
     Offset off() { return pstate(); }
     Position pos() { return pstate(); }
@@ -1634,7 +1633,6 @@ namespace Sass {
 
     virtual bool operator< (const Number& rhs) const;
     virtual bool operator== (const Expression& rhs) const;
-    virtual bool eq(const Expression& rhs) const;
     ATTACH_AST_OPERATIONS(Number)
     ATTACH_OPERATIONS()
   };
@@ -1767,8 +1765,6 @@ namespace Sass {
     static std::string type_name() { return "string"; }
     virtual ~String() = 0;
     virtual void rtrim() = 0;
-    virtual void ltrim() = 0;
-    virtual void trim() = 0;
     virtual bool operator==(const Expression& rhs) const = 0;
     virtual bool operator<(const Expression& rhs) const {
       return this->to_string() < rhs.to_string();
@@ -1808,8 +1804,6 @@ namespace Sass {
       return false;
     }
     virtual void rtrim();
-    virtual void ltrim();
-    virtual void trim();
 
     virtual size_t hash()
     {
@@ -1862,8 +1856,6 @@ namespace Sass {
     static std::string type_name() { return "string"; }
     virtual bool is_invisible() const;
     virtual void rtrim();
-    virtual void ltrim();
-    virtual void trim();
 
     virtual size_t hash()
     {
@@ -2808,7 +2800,6 @@ namespace Sass {
       return length() == 1 &&
              Cast<Parent_Selector>((*this)[0]);
     }
-    SubSetMapKeys to_str_vec(); // sometimes need to convert to a flat "by-value" data structure
 
     virtual bool operator<(const Compound_Selector& rhs) const;
     virtual bool operator==(const Compound_Selector& rhs) const;
@@ -2881,9 +2872,6 @@ namespace Sass {
       return (!head() || head()->length() == 0) &&
              combinator() == Combinator::ANCESTOR_OF;
     }
-
-    Complex_Selector_Obj context(Context&);
-
 
     Selector_List_Ptr tails(Context& ctx, Selector_List_Ptr tails);
 
