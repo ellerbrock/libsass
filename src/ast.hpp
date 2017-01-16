@@ -2288,7 +2288,7 @@ namespace Sass {
     { concrete_type(SELECTOR); }
     virtual ~Selector() = 0;
     virtual size_t hash() = 0;
-    virtual unsigned long specificity() {
+    virtual unsigned long specificity() const {
       return 0;
     }
     virtual void set_media_block(Media_Block_Ptr mb) {
@@ -2421,7 +2421,7 @@ namespace Sass {
     virtual Compound_Selector_Ptr unify_with(Compound_Selector_Ptr, Context&);
     virtual bool has_parent_ref() { return false; };
     virtual bool has_real_parent_ref() { return false; };
-    virtual bool is_pseudo_element() { return false; }
+    virtual bool is_pseudo_element() const { return false; }
     virtual bool is_pseudo_class() { return false; }
 
     virtual bool is_superselector_of(Compound_Selector_Obj sub) { return false; }
@@ -2457,7 +2457,7 @@ namespace Sass {
     bool is_real_parent_ref() { return real(); };
     virtual bool has_parent_ref() { return true; };
     virtual bool has_real_parent_ref() { return is_real_parent_ref(); };
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       return 0;
     }
@@ -2478,7 +2478,7 @@ namespace Sass {
     Placeholder_Selector(const Placeholder_Selector* ptr)
     : Simple_Selector(ptr)
     { }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       return Constants::Specificity_Base;
     }
@@ -2501,7 +2501,7 @@ namespace Sass {
     Element_Selector(const Element_Selector* ptr)
     : Simple_Selector(ptr)
     { }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       if (name() == "*") return 0;
       else               return Constants::Specificity_Element;
@@ -2527,7 +2527,7 @@ namespace Sass {
     {
       return false;
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       return Constants::Specificity_Class;
     }
@@ -2551,7 +2551,7 @@ namespace Sass {
     {
       return true;
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       return Constants::Specificity_ID;
     }
@@ -2585,7 +2585,7 @@ namespace Sass {
       }
       return hash_;
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       return Constants::Specificity_Attr;
     }
@@ -2639,7 +2639,7 @@ namespace Sass {
     // in CSS levels 1 and 2 (namely, :first-line, :first-letter, :before and
     // :after). This compatibility is not allowed for the new pseudo-elements
     // introduced in this specification.
-    virtual bool is_pseudo_element()
+    virtual bool is_pseudo_element() const
     {
       return (name_[0] == ':' && name_[1] == ':')
              || is_pseudo_class_element(name_);
@@ -2652,7 +2652,7 @@ namespace Sass {
       }
       return hash_;
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       if (is_pseudo_element())
         return Constants::Specificity_Element;
@@ -2700,7 +2700,7 @@ namespace Sass {
       if (!selector()) return false;
       return selector()->has_real_parent_ref();
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       return selector_ ? selector_->specificity() : 0;
     }
@@ -2778,7 +2778,7 @@ namespace Sass {
       }
       return Selector::hash_;
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       int sum = 0;
       for (size_t i = 0, L = length(); i < L; ++i)
@@ -3013,7 +3013,7 @@ namespace Sass {
       }
       return Selector::hash_;
     }
-    virtual unsigned long specificity()
+    virtual unsigned long specificity() const
     {
       unsigned long sum = 0;
       unsigned long specificity = 0;
