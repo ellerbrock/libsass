@@ -201,7 +201,7 @@ namespace Sass {
     { }
     virtual operator bool() { return true; }
     virtual ~Expression() { }
-    virtual std::string type() { return ""; /* TODO: raise an error? */ }
+    virtual std::string type() const { return ""; /* TODO: raise an error? */ }
     virtual bool is_invisible() const { return false; }
     static std::string type_name() { return ""; }
     virtual bool is_false() { return false; }
@@ -1070,7 +1070,7 @@ namespace Sass {
       is_arglist_(ptr->is_arglist_),
       from_selector_(ptr->from_selector_)
     { concrete_type(LIST); }
-    std::string type() { return is_arglist_ ? "arglist" : "list"; }
+    std::string type() const { return is_arglist_ ? "arglist" : "list"; }
     static std::string type_name() { return "list"; }
     const char* sep_string(bool compressed = false) const {
       return separator() == SASS_SPACE ?
@@ -1118,7 +1118,7 @@ namespace Sass {
     : Value(ptr),
       Hashed(*ptr)
     { concrete_type(MAP); }
-    std::string type() { return "map"; }
+    std::string type() const { return "map"; }
     static std::string type_name() { return "map"; }
     bool is_invisible() const { return empty(); }
     List_Obj to_list(Context& ctx, ParserState& pstate);
@@ -1186,7 +1186,7 @@ namespace Sass {
       hash_(ptr->hash_)
     { }
     const std::string type_name() {
-      switch (type()) {
+      switch (optype()) {
         case AND: return "and"; break;
         case OR: return "or"; break;
         case EQ: return "eq"; break;
@@ -1206,7 +1206,7 @@ namespace Sass {
       }
     }
     const std::string separator() {
-      switch (type()) {
+      switch (optype()) {
         case AND: return "&&"; break;
         case OR: return "||"; break;
         case EQ: return "=="; break;
@@ -1257,13 +1257,13 @@ namespace Sass {
     virtual size_t hash()
     {
       if (hash_ == 0) {
-        hash_ = std::hash<size_t>()(type());
+        hash_ = std::hash<size_t>()(optype());
         hash_combine(hash_, left()->hash());
         hash_combine(hash_, right()->hash());
       }
       return hash_;
     }
-    enum Sass_OP type() const { return op_.operand; }
+    enum Sass_OP optype() const { return op_.operand; }
     ATTACH_AST_OPERATIONS(Binary_Expression)
     ATTACH_OPERATIONS()
   };
@@ -1275,21 +1275,21 @@ namespace Sass {
   public:
     enum Type { PLUS, MINUS, NOT };
   private:
-    HASH_PROPERTY(Type, type)
+    HASH_PROPERTY(Type, optype)
     HASH_PROPERTY(Expression_Obj, operand)
     size_t hash_;
   public:
     Unary_Expression(ParserState pstate, Type t, Expression_Obj o)
-    : Expression(pstate), type_(t), operand_(o), hash_(0)
+    : Expression(pstate), optype_(t), operand_(o), hash_(0)
     { }
     Unary_Expression(const Unary_Expression* ptr)
     : Expression(ptr),
-      type_(ptr->type_),
+      optype_(ptr->optype_),
       operand_(ptr->operand_),
       hash_(ptr->hash_)
     { }
     const std::string type_name() {
-      switch (type_) {
+      switch (optype_) {
         case PLUS: return "plus"; break;
         case MINUS: return "minus"; break;
         case NOT: return "not"; break;
@@ -1314,7 +1314,7 @@ namespace Sass {
     virtual size_t hash()
     {
       if (hash_ == 0) {
-        hash_ = std::hash<size_t>()(type_);
+        hash_ = std::hash<size_t>()(optype_);
         hash_combine(hash_, operand()->hash());
       };
       return hash_;
@@ -1537,17 +1537,17 @@ namespace Sass {
   public:
     enum Type { NUMBER, PERCENTAGE, DIMENSION, HEX };
   private:
-    HASH_PROPERTY(Type, type)
+    HASH_PROPERTY(Type, valtype)
     HASH_CONSTREF(std::string, value)
     size_t hash_;
   public:
     Textual(ParserState pstate, Type t, std::string val)
-    : Expression(pstate, DELAYED), type_(t), value_(val),
+    : Expression(pstate, DELAYED), valtype_(t), value_(val),
       hash_(0)
     { }
     Textual(const Textual* ptr)
     : Expression(ptr),
-      type_(ptr->type_),
+      valtype_(ptr->valtype_),
       value_(ptr->value_),
       hash_(ptr->hash_)
     { }
@@ -1570,7 +1570,7 @@ namespace Sass {
     {
       if (hash_ == 0) {
         hash_ = std::hash<std::string>()(value_);
-        hash_combine(hash_, std::hash<int>()(type_));
+        hash_combine(hash_, std::hash<int>()(valtype_));
       }
       return hash_;
     }
@@ -1605,7 +1605,7 @@ namespace Sass {
     std::vector<std::string>& denominator_units() { return denominator_units_; }
     const std::vector<std::string>& numerator_units() const   { return numerator_units_; }
     const std::vector<std::string>& denominator_units() const { return denominator_units_; }
-    std::string type() { return "number"; }
+    std::string type() const { return "number"; }
     static std::string type_name() { return "number"; }
     std::string unit() const;
 
@@ -1658,7 +1658,7 @@ namespace Sass {
       disp_(ptr->disp_),
       hash_(ptr->hash_)
     { concrete_type(COLOR); }
-    std::string type() { return "color"; }
+    std::string type() const { return "color"; }
     static std::string type_name() { return "color"; }
 
     virtual size_t hash()
@@ -1729,7 +1729,7 @@ namespace Sass {
       hash_(ptr->hash_)
     { concrete_type(BOOLEAN); }
     virtual operator bool() { return value_; }
-    std::string type() { return "bool"; }
+    std::string type() const { return "bool"; }
     static std::string type_name() { return "bool"; }
     virtual bool is_false() { return !value_; }
 
@@ -1788,7 +1788,7 @@ namespace Sass {
       hash_(ptr->hash_)
     { concrete_type(STRING); }
 
-    std::string type() { return "string"; }
+    std::string type() const { return "string"; }
     static std::string type_name() { return "string"; }
 
     bool is_left_interpolant(void) const;
@@ -1849,7 +1849,7 @@ namespace Sass {
     String_Constant(ParserState pstate, const Token& tok)
     : String(pstate), quote_mark_(0), can_compress_whitespace_(false), value_(read_css_string(std::string(tok.begin, tok.end))), hash_(0)
     { }
-    std::string type() { return "string"; }
+    std::string type() const { return "string"; }
     static std::string type_name() { return "string"; }
     virtual bool is_invisible() const;
     virtual void rtrim();
@@ -2138,7 +2138,7 @@ namespace Sass {
   public:
     Null(ParserState pstate) : Value(pstate) { concrete_type(NULL_VAL); }
     Null(const Null* ptr) : Value(ptr) { concrete_type(NULL_VAL); }
-    std::string type() { return "null"; }
+    std::string type() const { return "null"; }
     static std::string type_name() { return "null"; }
     bool is_invisible() const { return true; }
     operator bool() { return false; }
@@ -2292,10 +2292,10 @@ namespace Sass {
     virtual void set_media_block(Media_Block_Ptr mb) {
       media_block(mb);
     }
-    virtual bool has_parent_ref() {
+    virtual bool has_parent_ref() const {
       return false;
     }
-    virtual bool has_real_parent_ref() {
+    virtual bool has_real_parent_ref() const {
       return false;
     }
     // dispatch to correct handlers
@@ -2330,8 +2330,8 @@ namespace Sass {
       connect_parent_(ptr->connect_parent_),
       media_block_(ptr->media_block_)
     { }
-    virtual bool has_parent_ref();
-    virtual bool has_real_parent_ref();
+    virtual bool has_parent_ref() const;
+    virtual bool has_real_parent_ref() const;
     virtual bool operator<(const Selector& rhs) const;
     virtual bool operator==(const Selector& rhs) const;
     // selector schema is not yet a final selector, so we do not
@@ -2425,8 +2425,8 @@ namespace Sass {
 
     virtual ~Simple_Selector() = 0;
     virtual Compound_Selector_Ptr unify_with(Compound_Selector_Ptr, Context&);
-    virtual bool has_parent_ref() { return false; };
-    virtual bool has_real_parent_ref() { return false; };
+    virtual bool has_parent_ref() const { return false; };
+    virtual bool has_real_parent_ref() const  { return false; };
     virtual bool is_pseudo_element() const { return false; }
 
     virtual bool is_superselector_of(Compound_Selector_Obj sub) { return false; }
@@ -2459,14 +2459,14 @@ namespace Sass {
     Parent_Selector(const Parent_Selector* ptr)
     : Simple_Selector(ptr), real_(ptr->real_)
     { /* has_reference(true); */ }
-    bool is_real_parent_ref() { return real(); };
-    virtual bool has_parent_ref() { return true; };
-    virtual bool has_real_parent_ref() { return is_real_parent_ref(); };
+    bool is_real_parent_ref() const { return real(); };
+    virtual bool has_parent_ref() const { return true; };
+    virtual bool has_real_parent_ref() const { return is_real_parent_ref(); };
     virtual unsigned long specificity() const
     {
       return 0;
     }
-    std::string type() { return "selector"; }
+    std::string type() const { return "selector"; }
     static std::string type_name() { return "selector"; }
     ATTACH_AST_OPERATIONS(Parent_Selector)
     ATTACH_OPERATIONS()
@@ -2672,8 +2672,8 @@ namespace Sass {
     // Selectors inside the negation pseudo-class are counted like any
     // other, but the negation itself does not count as a pseudo-class.
     virtual size_t hash();
-    virtual bool has_parent_ref();
-    virtual bool has_real_parent_ref();
+    virtual bool has_parent_ref() const;
+    virtual bool has_real_parent_ref() const;
     virtual unsigned long specificity() const;
     virtual bool operator==(const Simple_Selector& rhs) const;
     virtual bool operator==(const Wrapped_Selector& rhs) const;
@@ -2729,8 +2729,8 @@ namespace Sass {
     Complex_Selector_Obj to_complex();
     Compound_Selector_Ptr unify_with(Compound_Selector_Ptr rhs, Context& ctx);
     // virtual Placeholder_Selector_Ptr find_placeholder();
-    virtual bool has_parent_ref();
-    virtual bool has_real_parent_ref();
+    virtual bool has_parent_ref() const;
+    virtual bool has_real_parent_ref() const;
     Simple_Selector_Ptr base() const {
       if (length() == 0) return 0;
       // ToDo: why is this needed?
@@ -2823,8 +2823,8 @@ namespace Sass {
       head_(ptr->head_), tail_(ptr->tail_),
       reference_(ptr->reference_)
     {};
-    virtual bool has_parent_ref();
-    virtual bool has_real_parent_ref();
+    virtual bool has_parent_ref() const;
+    virtual bool has_real_parent_ref() const;
 
     Complex_Selector_Obj skip_empty_reference()
     {
@@ -2973,11 +2973,11 @@ namespace Sass {
       schema_(ptr->schema_),
       wspace_(ptr->wspace_)
     { }
-    std::string type() { return "list"; }
+    std::string type() const { return "list"; }
     // remove parent selector references
     // basically unwraps parsed selectors
-    virtual bool has_parent_ref();
-    virtual bool has_real_parent_ref();
+    virtual bool has_parent_ref() const;
+    virtual bool has_real_parent_ref() const;
     void remove_parent_selectors();
     Selector_List_Ptr resolve_parent_refs(Context& ctx, std::vector<Selector_List_Obj>& pstack, bool implicit_parent = true);
     virtual bool is_superselector_of(Compound_Selector_Obj sub, std::string wrapping = "");
