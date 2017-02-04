@@ -660,14 +660,14 @@ namespace Sass {
     // should we extend something?
     if (!subset_map.empty()) {
       // create crtp visitor object
-      Extend extend(*this, subset_map);
+      Extend extend(subset_map);
       // extend tree nodes
       extend(root);
     }
 
     // clean up by removing empty placeholders
     // ToDo: maybe we can do this somewhere else?
-    Remove_Placeholders remove_placeholders(*this);
+    Remove_Placeholders remove_placeholders;
     root->perform(&remove_placeholders);
     // return processed tree
     return root;
