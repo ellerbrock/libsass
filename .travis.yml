@@ -49,6 +49,7 @@ matrix:
         coverity_scan:
           project:
             name: "sass/libsass"
+          notification_email: nschonni@gmail.com
           build_command: ./script/ci-build-libsass
           branch_pattern: coverity_scan
     - os: linux
