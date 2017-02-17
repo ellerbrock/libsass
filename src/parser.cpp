@@ -690,7 +690,7 @@ namespace Sass {
   Complex_Selector_Obj Parser::parse_complex_selector(bool chroot)
   {
 
-    String_Ptr reference = 0;
+    String_Obj reference = 0;
     lex < block_comment >();
     advanceToNextToken();
     Complex_Selector_Obj sel = SASS_MEMORY_NEW(Complex_Selector, pstate);
@@ -912,8 +912,8 @@ namespace Sass {
           >()
       ) {
         lex_css< alternatives < static_value, binomial > >();
-        String_Constant_Ptr expr = SASS_MEMORY_NEW(String_Constant, pstate, lexed);
-        if (expr && lex_css< exactly<')'> >()) {
+        String_Constant_Obj expr = SASS_MEMORY_NEW(String_Constant, pstate, lexed);
+        if (lex_css< exactly<')'> >()) {
           expr->can_compress_whitespace(true);
           return SASS_MEMORY_NEW(Pseudo_Selector, p, name, expr);
         }
