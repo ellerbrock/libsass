@@ -1,5 +1,6 @@
 #include "sass.hpp"
 #include "position.hpp"
+#include <bitset>
 
 namespace Sass {
 
@@ -47,9 +48,20 @@ namespace Sass {
         // start new line
         column = 0;
       } else {
-        ++ column;
+        std::bitset<8> chr(*begin);
+        // skip over 10xxxxxx
+        // continuation bytes
+        if (chr[7] == 1) {
+          if (chr[6] != 0) {
+            column += 1;
+          }
+        }
+        // ascii char
+        else {
+          column += 1;
+        }
       }
-      ++begin;
+      ++ begin;
     }
     return *this;
   }

@@ -103,7 +103,10 @@ namespace Sass {
   // prepend some text or token to the buffer
   void Emitter::prepend_string(const std::string& text)
   {
-    wbuf.smap.prepend(Offset(text));
+    // do not adjust mappings for utf8 bom
+    if (text.compare("\xEF\xBB\xBF") != 0) {
+      wbuf.smap.prepend(Offset(text));
+    }
     wbuf.buffer = text + wbuf.buffer;
   }
 
